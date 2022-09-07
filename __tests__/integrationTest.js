@@ -1,0 +1,6 @@
+/**
+ * Unit test
+
+@group integration
+
+*/

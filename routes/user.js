@@ -1,0 +1,255 @@
+const router = require('express').Router()
+
+let users = {}
+
+
+router.get('/', (req, res) => {
+    res.status(200).send({status: "Ok", message: "user"})
+})
+
+/**
+ * @openapi
+ * /user:
+ *   post:
+ *     description: Creates a user!
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: The user's name.
+ *                 example: Jon Doe
+ *               password:
+ *                 type: string
+ *                 description: The user's password.
+ *                 example: secret
+ *               email:
+ *                 type: string
+ *                 description: The user's email.
+ *                 example: jon.doe@some.where
+ *     responses:
+ *       200:
+ *         description: Creates a user.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       description: The user ID.
+ *                       example: 1
+ *                     name:
+ *                       type: string
+ *                       description: The user's name.
+ *                       example: Jone Doe
+ *                     email:
+ *                       type: string
+ *                       description: The user's name.
+ *                       example: Jone Doe
+ */
+
+
+// POST
+router.post('/users', (req, res) => {
+    if(!req.body.hasOwnProperty('email')){
+		res.status(400).send('User email is mandatory!')
+		return
+	}
+
+	if(!req.body.hasOwnProperty('password')){
+		res.status(400).send('User password is mandatory!')
+		return
+	}
+
+	if(!req.body.hasOwnProperty('username')){
+		res.status(400).send('Username is mandatory!')
+		return
+	}
+
+	const id = req.body.email
+	if( users[id]!== undefined){
+		res.status(400).send('User already exist, use PUT for update!')
+		return
+	}
+
+	users[id] = {
+			id: req.body.email,
+			user: req.body.username,
+			email: req.body.email,
+			password: req.body.password
+		}
+
+	res.status(200).send(users)
+});
+
+/**
+ * @openapi
+ * /user:
+ *   get:
+ *     description: Get all users!
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: The user's name.
+ *                 example: Jon Doe
+ *               password:
+ *                 type: string
+ *                 description: The user's password.
+ *                 example: secret
+ *               email:
+ *                 type: string
+ *                 description: The user's email.
+ *                 example: jon.doe@some.where
+ *     responses:
+ *       200:
+ *         description: Get all users.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       description: The user ID.
+ *                       example: 1
+ *                     name:
+ *                       type: string
+ *                       description: The user's name.
+ *                       example: Jone Doe
+ *                     email:
+ *                       type: string
+ *                       description: The user's name.
+ *                       example: Jone Doe
+ */
+
+//Read
+router.get('/', async (req, res, next) => {
+	const result = []
+	for (const [key, user] of Object.entries(users)) {
+		result.push(user.email)
+	}
+	res.status(200).send(result)
+});
+
+/**
+ * @openapi
+ * /user:
+ *   get:
+ *     description: Show user by id!
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: The user's name.
+ *                 example: Jon Doe
+ *               password:
+ *                 type: string
+ *                 description: The user's password.
+ *                 example: secret
+ *               email:
+ *                 type: string
+ *                 description: The user's email.
+ *                 example: jon.doe@some.where
+ *     responses:
+ *       200:
+ *         description: Get user by id.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       description: The user ID.
+ *                       example: 1
+ *                     name:
+ *                       type: string
+ *                       description: The user's name.
+ *                       example: Jone Doe
+ *                     email:
+ *                       type: string
+ *                       description: The user's name.
+ *                       example: Jone Doe
+ */
+
+router.get('/:id', async (req, res, next) => {
+	if(req.params.id == undefined){
+		res.status(404).send('User email is mandatory!')
+		return
+	}
+	
+	if( users[req.params.id]== undefined){
+		res.status(404).send('User not found!')
+		return
+	}
+
+	const user = {
+		username: users[req.params.id].user,
+		email: users[req.params.id].email
+	}
+	res.status(200).send(user)
+});
+
+//Update
+router.put('/:id', async (req, res, next) => {
+	if( users[req.params.id]== undefined){
+		res.status(404).send('User not found!')
+		return
+	}
+	let user = users[req.params.id]
+
+	if(req.body.hasOwnProperty('email')){
+		user.email = req.body.email
+	}
+
+	if(req.body.hasOwnProperty('username')){
+		user.user = req.body.username
+	}
+
+	if(req.body.hasOwnProperty('password')){
+		user.password = req.body.password
+	}
+
+	res.status(200).send()
+});
+
+//Delete
+router.delete('/:id', async (req, res, next) => {
+	if(req.params.id == undefined){
+		res.status(400).send('User email is mandatory!')
+		return
+	}
+	
+	if( users[req.params.id]!== undefined){
+		users.delete[req.params.id]
+	}
+	res.status(200).send({status: "ok"})
+});
+
+
+module.exports = router 
