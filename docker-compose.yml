@@ -1,0 +1,9 @@
+services: 
+# backend server
+  aydas-app:
+    build: https://github.com/Tootfarangi90/ayda-backend.git
+    image: ayda-backend:latest
+    ports:
+    - "8080:8080"
+
+
